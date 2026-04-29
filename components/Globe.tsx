@@ -60,11 +60,11 @@ export default function Globe({
     let mounted = true;
 
     (async () => {
+      // globe.gl is the imperative factory; react-globe.gl wraps it as a React component
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mod = await import("react-globe.gl") as any;
-      // Handle CJS/ESM interop differences across bundlers
+      const mod = await import("globe.gl") as any;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const GlobeGL: any = mod.default?.default ?? mod.default ?? mod;
+      const GlobeGL: any = mod.default ?? mod;
       if (!mounted || !containerRef.current) return;
       const el = containerRef.current;
 
