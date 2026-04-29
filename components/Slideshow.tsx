@@ -60,7 +60,6 @@ function PhotoCard({
   pos: { top: number; right: number; rot: number; w: number };
   delay: number;
 }) {
-  const h = Math.round(pos.w * 0.72);
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.88, y: 18 }}
@@ -80,7 +79,7 @@ function PhotoCard({
       {photo.placeholder ? (
         <div
           className="flex items-center justify-center bg-white/5"
-          style={{ width: pos.w, height: h }}
+          style={{ width: pos.w, height: Math.round(pos.w * 0.75) }}
         >
           <div className="text-center text-white/30">
             <div className="text-3xl mb-1">📷</div>
@@ -88,9 +87,15 @@ function PhotoCard({
           </div>
         </div>
       ) : (
-        <div style={{ width: pos.w, height: h, position: "relative" }}>
-          <Image src={photo.src} alt={photo.alt} fill className="object-cover" sizes={`${pos.w}px`} />
-        </div>
+        // width fixed, height auto — portrait images show their full height
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          width={pos.w}
+          height={pos.w * 1.5}
+          style={{ width: "100%", height: "auto", display: "block" }}
+          sizes={`${pos.w}px`}
+        />
       )}
     </motion.div>
   );
