@@ -220,7 +220,7 @@ export default function Slideshow() {
         </div>
 
         {/* ── RIGHT: Full-height photo panel ─────────────────────── */}
-        <div className="lg:w-[52%] w-full h-[55%] lg:h-full relative pointer-events-auto">
+        <div className="lg:w-[52%] w-full h-[55%] lg:h-full relative pointer-events-auto overflow-hidden">
           {/* Crossfade container — opacity driven by transitioning */}
           <motion.div
             className="absolute inset-0"
@@ -228,7 +228,6 @@ export default function Slideshow() {
             transition={{ duration: 0.45 }}
           >
             <ChapterPhoto
-              key={chapter.id}
               chapterId={chapter.id}
               photos={chapter.photos}
               accentColor={chapter.accentColor}
@@ -238,7 +237,7 @@ export default function Slideshow() {
 
           {/* Accent color glow at bottom of photo */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+            className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-20"
             animate={{ opacity: transitioning ? 0 : 0.6 }}
             style={{
               background: `linear-gradient(to top, ${chapter.accentColor}25, transparent)`,

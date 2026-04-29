@@ -60,12 +60,15 @@ export default function Globe({
     let mounted = true;
 
     (async () => {
-      const { default: GlobeGL } = await import("react-globe.gl");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mod = await import("react-globe.gl") as any;
+      // Handle CJS/ESM interop differences across bundlers
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const GlobeGL: any = mod.default?.default ?? mod.default ?? mod;
       if (!mounted || !containerRef.current) return;
       const el = containerRef.current;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const globe = (GlobeGL as any)()
+      const globe = GlobeGL()
         .width(el.clientWidth)
         .height(el.clientHeight)
         .backgroundColor("rgba(0,0,0,0)")
