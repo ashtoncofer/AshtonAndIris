@@ -9,9 +9,21 @@ export interface PersonLocation {
   lng: number;
 }
 
+export type Era =
+  | "Summer '21"
+  | "Sophomore Year"
+  | "Summer '22"
+  | "Junior Year"
+  | "Summer '23"
+  | "Senior Year"
+  | "Graduation"
+  | "Long Distance"
+  | "NYC Together"
+  | "Next Chapter";
+
 export interface StoryChapter {
   id: string;
-  chapter: number;
+  era: Era;
   title: string;
   date: string;
   location: string;
@@ -36,7 +48,7 @@ const NYC       = { lat: 40.7128, lng: -74.006  };
 export const chapters: StoryChapter[] = [
   {
     id: "the-meeting",
-    chapter: 1,
+    era: "Summer '21",
     title: "Where It All Began",
     date: "July 26, 2021",
     location: "Stanford University, Palo Alto, CA",
@@ -48,7 +60,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "the-text",
-    chapter: 2,
+    era: "Summer '21",
     title: "The Accidental Text",
     date: "July 27, 2021",
     location: "Stanford University, Palo Alto, CA",
@@ -60,7 +72,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "the-walk",
-    chapter: 3,
+    era: "Summer '21",
     title: "Three Hours & Some Raccoons",
     date: "Late July 2021",
     location: "Stanford University, Palo Alto, CA",
@@ -72,7 +84,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "cowboy-party",
-    chapter: 4,
+    era: "Summer '21",
     title: "Yeehaw",
     date: "Late July 2021",
     location: "Stanford University, Palo Alto, CA",
@@ -84,7 +96,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "summer-facetime",
-    chapter: 5,
+    era: "Summer '21",
     title: "Every Single Day",
     date: "Summer 2021",
     location: "Palo Alto, CA  ↔  Dallas, TX",
@@ -99,7 +111,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "official",
-    chapter: 6,
+    era: "Sophomore Year",
     title: "Official",
     date: "October 10, 2021",
     location: "Stanford University, Palo Alto, CA",
@@ -112,7 +124,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "monterey-road-trip",
-    chapter: 7,
+    era: "Sophomore Year",
     title: "First Road Trip",
     date: "December 8, 2021",
     location: "Monterey, CA",
@@ -125,7 +137,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "christmas-apart",
-    chapter: 8,
+    era: "Sophomore Year",
     title: "1,900 Miles Apart",
     date: "December 2021",
     location: "Dallas, TX  ↔  Chagrin Falls, OH",
@@ -140,7 +152,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "school-year-22",
-    chapter: 9,
+    era: "Sophomore Year",
     title: "Together Every Day",
     date: "Winter–Spring 2022",
     location: "Stanford University, Palo Alto, CA",
@@ -158,7 +170,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "disneyland",
-    chapter: 10,
+    era: "Sophomore Year",
     title: "The Happiest Place on Earth",
     date: "May 29, 2022",
     location: "Anaheim, CA",
@@ -171,7 +183,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "austin-family",
-    chapter: 11,
+    era: "Summer '22",
     title: "Meeting the Family",
     date: "June 2022",
     location: "Austin, TX",
@@ -187,7 +199,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "summer-22",
-    chapter: 12,
+    era: "Summer '22",
     title: "Long Distance, Round Two",
     date: "Summer 2022",
     location: "Palo Alto, CA  ↔  Dallas, TX",
@@ -202,7 +214,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "anniversary-1",
-    chapter: 13,
+    era: "Junior Year",
     title: "One Year",
     date: "October 10, 2022",
     location: "Monterey, CA",
@@ -219,7 +231,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "hawaii-1",
-    chapter: 14,
+    era: "Junior Year",
     title: "Aloha for the First Time",
     date: "October 22, 2022",
     location: "Hawaii",
@@ -235,7 +247,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "hawaii-2",
-    chapter: 15,
+    era: "Junior Year",
     title: "Back to the Islands",
     date: "March 2023",
     location: "Hawaii",
@@ -251,7 +263,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "nyc-summer-23",
-    chapter: 16,
+    era: "Summer '23",
     title: "The City That Never Sleeps",
     date: "Summer 2023",
     location: "New York City, NY",
@@ -270,7 +282,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "napa",
-    chapter: 17,
+    era: "Senior Year",
     title: "Two Years",
     date: "October 2023",
     location: "Napa Valley, CA",
@@ -286,7 +298,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "savannah-engaged",
-    chapter: 18,
+    era: "Senior Year",
     title: "She Said Yes",
     date: "November 2023",
     location: "Santa Cruz, CA",
@@ -299,7 +311,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "christmas-dallas-23",
-    chapter: 19,
+    era: "Senior Year",
     title: "Christmas in Dallas",
     date: "December 2023",
     location: "Dallas, TX",
@@ -312,7 +324,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "senior-year",
-    chapter: 20,
+    era: "Senior Year",
     title: "Senior Year",
     date: "Winter–Spring 2024",
     location: "Stanford University, Palo Alto, CA",
@@ -329,7 +341,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "graduation-japan",
-    chapter: 21,
+    era: "Graduation",
     title: "Graduation & Japan",
     date: "Spring 2024",
     location: "Japan",
@@ -346,7 +358,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "long-distance",
-    chapter: 22,
+    era: "Long Distance",
     title: "The Hard Part",
     date: "Summer–Fall 2024",
     location: "Palo Alto, CA  ↔  New York City, NY",
@@ -364,7 +376,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "ashton-moves-nyc",
-    chapter: 23,
+    era: "NYC Together",
     title: "He Moved",
     date: "February 2025",
     location: "New York City, NY",
@@ -376,7 +388,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "nyc-life",
-    chapter: 24,
+    era: "NYC Together",
     title: "New York, Together",
     date: "2025",
     location: "New York City, NY",
@@ -393,7 +405,7 @@ export const chapters: StoryChapter[] = [
   },
   {
     id: "montreal",
-    chapter: 25,
+    era: "Next Chapter",
     title: "Next Stop: Montréal",
     date: "Coming Soon",
     location: "Montréal, QC, Canada",
