@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useCallback } from "react";
 
-interface GlobePoint {
+interface GlobeMarker {
   lat: number;
   lng: number;
   label: string;
   color: string;
+  isActive: boolean;
+  isVisited: boolean;
+  chapterIdx: number;
 }
 
 interface GlobeArc {
@@ -20,99 +23,141 @@ interface GlobeArc {
 interface GlobeProps {
   targetLat: number;
   targetLng: number;
-  points: GlobePoint[];
+  markers: GlobeMarker[];
   arc?: GlobeArc | null;
   activeColor: string;
+  onMarkerClick?: (chapterIdx: number) => void;
 }
 
-export default function Globe({ targetLat, targetLng, points, arc, activeColor }: GlobeProps) {
+export default function Globe({
+  targetLat,
+  targetLng,
+  markers,
+  arc,
+  activeColor,
+  onMarkerClick,
+}: GlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const GlobeGLRef = useRef<any>(null);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const initGlobe = useCallback(async () => {
+  const pauseAndFly = useCallback((lat: number, lng: number) => {
+    const g = globeRef.current;
+    if (!g) return;
+    const controls = g.controls();
+    controls.autoRotate = false;
+    g.pointOfView({ lat, lng, altitude: 2.4 }, 1400);
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => {
+      controls.autoRotate = true;
+    }, 2800);
+  }, []);
+
+  // Init (runs once)
+  useEffect(() => {
     if (!containerRef.current || globeRef.current) return;
+    let mounted = true;
 
-    const GlobeGL = (await import("react-globe.gl")).default;
-    GlobeGLRef.current = GlobeGL;
+    (async () => {
+      const { default: GlobeGL } = await import("react-globe.gl");
+      if (!mounted || !containerRef.current) return;
+      const el = containerRef.current;
 
-    const w = containerRef.current.clientWidth;
-    const h = containerRef.current.clientHeight;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const globe = (GlobeGL as any)()
+        .width(el.clientWidth)
+        .height(el.clientHeight)
+        .backgroundColor("rgba(0,0,0,0)")
+        .globeImageUrl("//unpkg.com/three-globe/example/img/earth-blue-marble.jpg")
+        .backgroundImageUrl("//unpkg.com/three-globe/example/img/night-sky.png")
+        .atmosphereColor(activeColor)
+        .atmosphereAltitude(0.25)
+        .showGraticules(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const globe = (GlobeGL as any)()
-      .width(w)
-      .height(h)
-      .backgroundColor("rgba(0,0,0,0)")
-      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-blue-marble.jpg")
-      .atmosphereColor("#4a90d9")
-      .atmosphereAltitude(0.15)
-      .showGraticules(false)
-      .enablePointerInteraction(false);
+      globe(el);
+      globeRef.current = globe;
 
-    globe(containerRef.current);
-    globeRef.current = globe;
+      const controls = globe.controls();
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.4;
+      controls.enableZoom = false;
+      controls.enablePan = false;
+      controls.minPolarAngle = Math.PI * 0.2;
+      controls.maxPolarAngle = Math.PI * 0.8;
 
-    // Point to starting location immediately
-    globe.pointOfView({ lat: targetLat, lng: targetLng, altitude: 2.0 }, 0);
+      globe.pointOfView({ lat: targetLat, lng: targetLng, altitude: 2.4 }, 0);
+    })();
+
+    return () => { mounted = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fly to target whenever it changes
   useEffect(() => {
-    initGlobe();
-  }, [initGlobe]);
+    if (globeRef.current) pauseAndFly(targetLat, targetLng);
+  }, [targetLat, targetLng, pauseAndFly]);
 
-  // Rotate to new target when it changes
+  // Atmosphere color
+  useEffect(() => {
+    globeRef.current?.atmosphereColor(activeColor);
+  }, [activeColor]);
+
+  // Markers + rings
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    g.pointOfView({ lat: targetLat, lng: targetLng, altitude: 2.0 }, 1200);
-  }, [targetLat, targetLng]);
+    const active = markers.find((m) => m.isActive);
 
-  // Update points
-  useEffect(() => {
-    const g = globeRef.current;
-    if (!g) return;
-    g.pointsData(points)
+    g.pointsData(markers)
       .pointLat("lat")
       .pointLng("lng")
-      .pointColor((d: GlobePoint) => d.color)
-      .pointAltitude(0.02)
-      .pointRadius((d: GlobePoint) =>
-        d.lat === targetLat && d.lng === targetLng ? 0.6 : 0.3
+      .pointColor((d: GlobeMarker) =>
+        d.isActive ? "#ffffff" : d.isVisited ? `${d.color}bb` : "#ffffff44"
       )
-      .pointLabel("label");
-  }, [points, targetLat, targetLng]);
+      .pointAltitude((d: GlobeMarker) => (d.isActive ? 0.06 : 0.01))
+      .pointRadius((d: GlobeMarker) => (d.isActive ? 0.7 : 0.28))
+      .pointsMerge(false)
+      .onPointClick((d: GlobeMarker) => onMarkerClick?.(d.chapterIdx));
 
-  // Update arc
+    if (active) {
+      g.ringsData([active, active]) // two staggered rings
+        .ringLat("lat")
+        .ringLng("lng")
+        .ringColor(() => activeColor)
+        .ringMaxRadius(4.5)
+        .ringPropagationSpeed(1.8)
+        .ringRepeatPeriod(1100);
+    } else {
+      g.ringsData([]);
+    }
+  }, [markers, activeColor, onMarkerClick]);
+
+  // Arcs
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    const arcs = arc ? [arc] : [];
-    g.arcsData(arcs)
+    g.arcsData(arc ? [arc] : [])
       .arcStartLat("startLat")
       .arcStartLng("startLng")
       .arcEndLat("endLat")
       .arcEndLng("endLng")
-      .arcColor(() => [activeColor, "#ffffff"])
-      .arcAltitude(0.25)
-      .arcStroke(0.5)
-      .arcDashLength(0.4)
-      .arcDashGap(0.2)
-      .arcDashAnimateTime(2000);
+      .arcColor(() => [activeColor, "#ffffffdd"])
+      .arcAltitude(0.32)
+      .arcStroke(1.2)
+      .arcDashLength(0.45)
+      .arcDashGap(0.22)
+      .arcDashAnimateTime(1600);
   }, [arc, activeColor]);
 
-  // Resize handler
+  // Resize
   useEffect(() => {
-    const handleResize = () => {
+    const onResize = () => {
       const g = globeRef.current;
       const el = containerRef.current;
-      if (!g || !el) return;
-      g.width(el.clientWidth).height(el.clientHeight);
+      if (g && el) g.width(el.clientWidth).height(el.clientHeight);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return <div ref={containerRef} className="w-full h-full" />;
