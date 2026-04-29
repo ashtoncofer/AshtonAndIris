@@ -2,7 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Next.js: debug server-side",
+      // Primary: starts the dev server and auto-opens Chrome when ready.
+      // Hit F5 (or the green play button) to run locally.
+      "name": "▶ Run Dev Server",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
@@ -11,16 +13,24 @@
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "/Users/ashtoncofer/.nvm/versions/node/v22.17.0/bin/node",
+      "envFile": "${workspaceFolder}/.env.local",
       "env": {
         "NODE_OPTIONS": "--inspect"
       },
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
         "!**/node_modules/**"
-      ]
+      ],
+      "serverReadyAction": {
+        "pattern": "Local:.+?(http://\\S+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
     },
     {
-      "name": "Next.js: debug client-side",
+      // Attach Chrome to an already-running dev server for client-side breakpoints.
+      // Start the server first (via terminal or ▶ Run Dev Server), then launch this.
+      "name": "Debug Client (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000",
@@ -33,7 +43,8 @@
       }
     },
     {
-      "name": "Next.js: debug full stack",
+      // Server + Chrome together: set breakpoints in both server and client code.
+      "name": "Debug Full Stack",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
@@ -42,6 +53,7 @@
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "/Users/ashtoncofer/.nvm/versions/node/v22.17.0/bin/node",
+      "envFile": "${workspaceFolder}/.env.local",
       "env": {
         "NODE_OPTIONS": "--inspect"
       },
@@ -50,33 +62,10 @@
         "!**/node_modules/**"
       ],
       "serverReadyAction": {
-        "pattern": "- Local:.+(https?://.+)",
+        "pattern": "Local:.+?(http://\\S+)",
         "uriFormat": "%s",
         "action": "debugWithChrome"
       }
-    },
-    {
-      "name": "Next.js: debug with npm",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "env": {
-        "NODE_OPTIONS": "--inspect"
-      }
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Next.js: debug full stack (compound)",
-      "configurations": [
-        "Next.js: debug server-side",
-        "Next.js: debug client-side"
-      ],
-      "stopAll": true
     }
   ]
 }
