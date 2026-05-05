@@ -67,10 +67,12 @@ function PhotoCard({
   photo,
   pos,
   delay,
+  hideOnMobile,
 }: {
   photo: StoryPhoto;
   pos: { top: number; right: number; rot: number; w: number };
   delay: number;
+  hideOnMobile?: boolean;
 }) {
   return (
     <motion.div
@@ -83,10 +85,11 @@ function PhotoCard({
         top: `${pos.top}%`,
         right: `${pos.right}%`,
         width: pos.w,
+        maxWidth: "42vw",
         rotate: pos.rot,
         zIndex: 20,
       }}
-      className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10"
+      className={`rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10${hideOnMobile ? " max-sm:hidden" : ""}`}
     >
       {photo.video ? (
         <video
@@ -130,13 +133,12 @@ function MontrealCard({ accentColor }: { accentColor: string }) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
       transition={{ delay: 0.2, duration: 0.7 }}
-      style={{ position: "absolute", top: "18%", right: "6%", zIndex: 20 }}
-      className="flex flex-col items-center gap-5 text-center"
+      className="absolute top-[5%] right-[3%] sm:top-[18%] sm:right-[6%] z-20 flex flex-col items-center gap-3 sm:gap-5 text-center"
     >
       {[1, 2, 3].map((i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full border border-red-500/20"
+          className="absolute rounded-full border border-red-500/20 max-sm:hidden"
           style={{
             width: i * 140, height: i * 140,
             top: "50%", left: "50%",
@@ -149,17 +151,17 @@ function MontrealCard({ accentColor }: { accentColor: string }) {
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="text-6xl relative z-10"
+        className="text-4xl sm:text-6xl relative z-10"
       >
         ✈️
       </motion.div>
       <div className="relative z-10 flex flex-col gap-1">
         <p className="text-white/40 text-[10px] tracking-[0.3em] uppercase">Next Adventure</p>
-        <h2 className="text-4xl font-bold text-white tracking-tight">Paris</h2>
-        <p className="text-white/50 text-sm">France</p>
+        <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">Paris</h2>
+        <p className="text-white/50 text-xs sm:text-sm">France</p>
       </div>
       <motion.div
-        className="relative z-10 px-5 py-1.5 rounded-full text-xs font-semibold"
+        className="relative z-10 px-4 py-1 sm:px-5 sm:py-1.5 rounded-full text-xs font-semibold"
         style={{ background: `${accentColor}30`, border: `1px solid ${accentColor}60`, color: accentColor }}
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2, repeat: Infinity }}
@@ -317,25 +319,27 @@ export default function Slideshow() {
         </Suspense>
       </div>
 
-      {/* Gradient overlay */}
+      {/* Mobile: tall bottom gradient so text is readable over globe */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          zIndex: 1,
-          background:
-            "linear-gradient(to right, rgba(2,2,16,0.98) 0%, rgba(2,2,16,0.97) 32%, rgba(2,2,16,0.85) 50%, rgba(2,2,16,0.12) 66%, transparent 80%)",
-        }}
+        className="sm:hidden absolute inset-x-0 bottom-0 pointer-events-none"
+        style={{ zIndex: 1, height: "65%", background: "linear-gradient(to top, rgba(2,2,16,1) 0%, rgba(2,2,16,0.98) 35%, rgba(2,2,16,0.55) 62%, transparent 100%)" }}
       />
+      {/* Desktop: left-to-right gradient */}
       <div
-        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+        className="hidden sm:block absolute inset-0 pointer-events-none"
+        style={{ zIndex: 1, background: "linear-gradient(to right, rgba(2,2,16,0.98) 0%, rgba(2,2,16,0.97) 32%, rgba(2,2,16,0.85) 50%, rgba(2,2,16,0.12) 66%, transparent 80%)" }}
+      />
+      {/* Desktop: bottom gradient (covers timeline area) */}
+      <div
+        className="hidden sm:block absolute inset-x-0 bottom-0 h-48 pointer-events-none"
         style={{ zIndex: 1, background: "linear-gradient(to top, rgba(2,2,16,0.98) 0%, transparent 100%)" }}
       />
 
 
       {/* ── Left text content ─── */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center px-10 md:px-14 pointer-events-none">
+      <div className="absolute inset-0 z-10 flex flex-col justify-end sm:justify-center px-5 sm:px-10 md:px-14 pb-28 sm:pb-0 pointer-events-none">
         {/* Site label */}
-        <div className="absolute top-6 left-10 md:left-14 flex items-center gap-2 text-white/25 text-xs tracking-widest uppercase">
+        <div className="absolute top-6 left-5 sm:left-10 md:left-14 flex items-center gap-2 text-white/25 text-xs tracking-widest uppercase">
           <Globe2 size={12} />
           <span>Ashton & Iris</span>
         </div>
@@ -365,7 +369,7 @@ export default function Slideshow() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col gap-3 lg:gap-4 max-w-[440px] pointer-events-auto"
+            className="flex flex-col gap-2 sm:gap-3 lg:gap-4 max-w-[440px] pointer-events-auto"
           >
             {/* Era label */}
             <span
@@ -377,22 +381,22 @@ export default function Slideshow() {
 
             {/* Big date */}
             <div className="flex flex-col leading-none -mb-1">
-              <span className="text-sm md:text-base tracking-[0.2em] uppercase text-white/40 font-medium">
+              <span className="text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase text-white/40 font-medium">
                 {month}
               </span>
               {year ? (
-                <span className="text-7xl md:text-8xl lg:text-9xl font-bold text-white/90 tracking-tight leading-none">
+                <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-white/90 tracking-tight leading-none">
                   {year}
                 </span>
               ) : (
-                <span className="text-7xl md:text-8xl lg:text-9xl font-bold text-white/10 tracking-tight leading-none select-none">
+                <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-white/10 tracking-tight leading-none select-none">
                   ????
                 </span>
               )}
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tight">
               {chapter.title}
             </h1>
 
@@ -418,7 +422,7 @@ export default function Slideshow() {
               <MontrealCard accentColor={chapter.accentColor} />
             ) : (
               displayPhotos.map((photo, i) => (
-                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} />
+                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} hideOnMobile={i > 0} />
               ))
             )}
           </motion.div>
