@@ -334,7 +334,7 @@ export default function Slideshow() {
       {/* Desktop: left-to-right gradient */}
       <div
         className="hidden sm:block absolute inset-0 pointer-events-none"
-        style={{ zIndex: 1, background: "linear-gradient(to right, rgba(2,2,16,0.98) 0%, rgba(2,2,16,0.97) 32%, rgba(2,2,16,0.85) 50%, rgba(2,2,16,0.12) 66%, transparent 80%)" }}
+        style={{ zIndex: 1, background: "linear-gradient(to right, rgba(2,2,16,0.98) 0%, rgba(2,2,16,0.96) 26%, rgba(2,2,16,0.5) 38%, rgba(2,2,16,0.06) 52%, transparent 62%)" }}
       />
       {/* Desktop: bottom gradient (covers timeline area) */}
       <div
