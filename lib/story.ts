@@ -294,8 +294,8 @@ export const chapters: StoryChapter[] = [
     era: "Summer '23",
     title: "The City That Never Sleeps",
     date: "Summer 2023",
-    location: "New York City, NY",
-    lat: 40.7128, lng: -74.006, altitude: 1.4,
+    location: "Palo Alto, CA  ↔  New York City, NY",
+    lat: 39.5, lng: -98.0, altitude: 2.3,
     travelFrom: { lat: 21.3069, lng: -157.8583 },
     description:
       "Iris interned at McKinsey in New York. Ashton was back in Palo Alto — but he flew out for a weekend and fell in love with the city. It planted a seed.",
