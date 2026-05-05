@@ -67,11 +67,20 @@ function PhotoCard({
   photo,
   pos,
   delay,
+  photoCount,
 }: {
   photo: StoryPhoto;
   pos: { top: number; right: number; rot: number; w: number };
   delay: number;
+  photoCount: number;
 }) {
+  // On mobile: shrink width + cap height so portrait images don't cover the globe pins.
+  // On desktop the pixel pos.w is always smaller than the vw value so it has no effect.
+  const mobileMaxW =
+    photoCount <= 1 ? "40vw" : photoCount <= 2 ? "35vw" : "28vw";
+  const mobileMaxH =
+    photoCount <= 1 ? "max-sm:max-h-[35vh]" : photoCount <= 2 ? "max-sm:max-h-[28vh]" : "max-sm:max-h-[20vh]";
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.88, y: 18 }}
@@ -83,11 +92,11 @@ function PhotoCard({
         top: `${pos.top}%`,
         right: `${pos.right}%`,
         width: pos.w,
-        maxWidth: "42vw",
+        maxWidth: mobileMaxW,
         rotate: pos.rot,
         zIndex: 20,
       }}
-      className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10"
+      className={`rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10 ${mobileMaxH}`}
     >
       {photo.video ? (
         <video
@@ -420,7 +429,7 @@ export default function Slideshow() {
               <MontrealCard accentColor={chapter.accentColor} />
             ) : (
               displayPhotos.map((photo, i) => (
-                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} />
+                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} photoCount={displayPhotos.length} />
               ))
             )}
           </motion.div>
