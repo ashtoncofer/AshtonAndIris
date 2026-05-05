@@ -50,7 +50,7 @@ export default function Timeline({ currentIdx, onNavigate }: TimelineProps) {
 
   // Keep active dot scrolled into view on narrow screens
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    activeRef.current?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
   }, [currentIdx]);
 
   const currentChapter = chapters[currentIdx];

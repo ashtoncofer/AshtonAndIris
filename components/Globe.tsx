@@ -33,7 +33,7 @@ interface GlobeProps {
   targetLng: number;
   altitude: number;
   markers: GlobeMarker[];
-  arc?: GlobeArc | null;
+  arcs?: GlobeArc[];
   activeColor: string;
   personPins: PersonPin[];
   onMarkerClick?: (chapterIdx: number) => void;
@@ -44,7 +44,7 @@ export default function Globe({
   targetLng,
   altitude,
   markers,
-  arc,
+  arcs,
   activeColor,
   personPins,
   onMarkerClick,
@@ -133,6 +133,25 @@ export default function Globe({
     }
   }, [markers, activeColor, onMarkerClick]);
 
+  // Inject CSS keyframes for pin animation once
+  useEffect(() => {
+    if (document.getElementById("pin-entrance-style")) return;
+    const style = document.createElement("style");
+    style.id = "pin-entrance-style";
+    style.textContent = `
+      @keyframes pinEntrance {
+        0%   { transform: scale(0.2) translateY(6px); opacity: 0; }
+        65%  { transform: scale(1.25) translateY(-2px); opacity: 1; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+      }
+      @keyframes pinPulse {
+        0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 0px rgba(255,255,255,0.4); }
+        50%       { box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 5px rgba(255,255,255,0); }
+      }
+    `;
+    document.head.appendChild(style);
+  }, []);
+
   // A / I person pins as HTML elements
   useEffect(() => {
     const g = globeRef.current;
@@ -168,6 +187,7 @@ export default function Globe({
           color: white;
           font-family: system-ui, sans-serif;
           box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+          animation: pinEntrance 0.45s cubic-bezier(0.22,1,0.36,1) forwards, pinPulse 2.5s ease-in-out 0.45s infinite;
         `;
         badge.textContent = d.label;
 
@@ -180,6 +200,8 @@ export default function Globe({
           text-shadow: 0 1px 3px rgba(0,0,0,0.8);
           letter-spacing: 0.05em;
           white-space: nowrap;
+          animation: pinEntrance 0.45s cubic-bezier(0.22,1,0.36,1) forwards;
+          opacity: 0;
         `;
         nameTag.textContent = d.name;
 
@@ -193,18 +215,18 @@ export default function Globe({
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    g.arcsData(arc ? [arc] : [])
+    g.arcsData(arcs ?? [])
       .arcStartLat("startLat")
       .arcStartLng("startLng")
       .arcEndLat("endLat")
       .arcEndLng("endLng")
-      .arcColor(() => [activeColor, "#ffffffdd"])
+      .arcColor((d: GlobeArc) => [d.color, "#ffffffdd"])
       .arcAltitude(0.3)
       .arcStroke(1.0)
       .arcDashLength(0.45)
       .arcDashGap(0.22)
       .arcDashAnimateTime(1600);
-  }, [arc, activeColor]);
+  }, [arcs]);
 
   // Resize
   useEffect(() => {

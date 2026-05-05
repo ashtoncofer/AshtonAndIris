@@ -2,6 +2,7 @@ export interface StoryPhoto {
   src: string;
   alt: string;
   placeholder?: boolean;
+  video?: boolean;
 }
 
 export interface PersonLocation {
@@ -37,6 +38,7 @@ export interface StoryChapter {
   // Where each person physically is (defaults to chapter lat/lng if omitted)
   ashton?: PersonLocation;
   iris?: PersonLocation;
+  journeyAnimation?: boolean;
 }
 
 const STANFORD  = { lat: 37.4275, lng: -122.1697 };
@@ -44,6 +46,7 @@ const DALLAS    = { lat: 32.7767, lng: -96.797  };
 const PALO_ALTO = { lat: 37.4419, lng: -122.143 };
 const OHIO      = { lat: 41.4097, lng: -81.3892 };
 const NYC       = { lat: 40.7128, lng: -74.006  };
+const SAN_DIEGO = { lat: 32.7157, lng: -117.1611 };
 
 export const chapters: StoryChapter[] = [
   {
@@ -55,31 +58,37 @@ export const chapters: StoryChapter[] = [
     lat: 37.4275, lng: -122.1697, altitude: 1.1,
     description:
       "Ashton and Iris crossed paths for the first time at Tap on the Stanford campus — right after Ashton's soccer game. Neither of them knew it yet, but this was the start of everything.",
-    photos: [{ src: "", alt: "Stanford campus", placeholder: true }],
+    photos: [
+      { src: "/images/tap.png", alt: "First meeting at Tap" },
+      { src: "/images/stanford-logo.png", alt: "Stanford" },
+    ],
     accentColor: "#8C1515",
   },
   {
     id: "the-text",
     era: "Summer '21",
-    title: "The Accidental Text",
+    title: "First Dinner",
     date: "July 27, 2021",
     location: "Stanford University, Palo Alto, CA",
     lat: 37.4275, lng: -122.1697, altitude: 1.1,
     description:
-      "After dinner at Wilbur Dining, Ashton headed off to work on his pset. Iris was racking her brain for something to say — and accidentally sent him an Apple Watch transcription message instead. Perfectly imperfect.",
-    photos: [{ src: "/images/apple-watch-text.png", alt: "The accidental Apple Watch text" }],
+      "They grabbed dinner together at Wilbur Dining. Ashton headed off to work on his pset — and Iris was racking her brain for something to say. She accidentally sent him an Apple Watch transcription message instead. Perfectly imperfect.",
+    photos: [
+      { src: "/images/wilbur-dining.jpg", alt: "Wilbur Dining at Stanford" },
+      { src: "/images/apple-watch-text.png", alt: "The accidental Apple Watch text" },
+    ],
     accentColor: "#4A90D9",
   },
   {
     id: "the-walk",
     era: "Summer '21",
-    title: "Three Hours & Some Raccoons",
+    title: "Late Night Walk",
     date: "Late July 2021",
     location: "Stanford University, Palo Alto, CA",
     lat: 37.4275, lng: -122.1697, altitude: 1.1,
     description:
       "They went on a three-hour walk around campus — the kind where time disappears. At some point they stumbled across some very photogenic raccoons, and kept walking anyway.",
-    photos: [{ src: "", alt: "Stanford campus walk", placeholder: true }],
+    photos: [{ src: "/videos/raccoon-walk.mp4", alt: "Raccoons on the late night walk", video: true }],
     accentColor: "#5C8A6B",
   },
   {
@@ -97,7 +106,7 @@ export const chapters: StoryChapter[] = [
   {
     id: "summer-facetime",
     era: "Summer '21",
-    title: "Every Single Day",
+    title: "Facetiming Every Day",
     date: "Summer 2021",
     location: "Palo Alto, CA  ↔  Dallas, TX",
     lat: 35.5, lng: -109.0, altitude: 2.2, // centered between CA and TX
@@ -112,14 +121,17 @@ export const chapters: StoryChapter[] = [
   {
     id: "official",
     era: "Sophomore Year",
-    title: "Official",
+    title: "Back on Campus",
     date: "October 10, 2021",
     location: "Stanford University, Palo Alto, CA",
     lat: 37.4275, lng: -122.1697, altitude: 1.1,
     travelFrom: DALLAS,
     description:
       "Fall quarter started and they were back on campus. On October 10th, Ashton and Iris made it official. A date they'd celebrate for years to come.",
-    photos: [{ src: "/images/official.jpg", alt: "October 10, 2021 — official" }],
+    photos: [
+      { src: "/images/official.jpg", alt: "October 10, 2021 — official" },
+      { src: "/images/back-on-campus.jpg", alt: "Back on campus together" },
+    ],
     accentColor: "#C0392B",
   },
   {
@@ -138,7 +150,7 @@ export const chapters: StoryChapter[] = [
   {
     id: "christmas-apart",
     era: "Sophomore Year",
-    title: "1,900 Miles Apart",
+    title: "Back Home",
     date: "December 2021",
     location: "Dallas, TX  ↔  Chagrin Falls, OH",
     lat: 38.5, lng: -89.0, altitude: 1.9, // centered between OH and TX
@@ -246,13 +258,29 @@ export const chapters: StoryChapter[] = [
     accentColor: "#1ABC9C",
   },
   {
+    id: "thanksgiving-sandiego",
+    era: "Junior Year",
+    title: "Thanksgiving in San Diego",
+    date: "November 2022",
+    location: "San Diego, CA",
+    lat: 32.7157, lng: -117.1611, altitude: 1.2,
+    travelFrom: { lat: 20.7984, lng: -156.3319 },
+    description:
+      "Thanksgiving in San Diego — meeting Tyler's family for the first time. They played Dungeons & Dragons, ate great food, and kicked off a new tradition.",
+    photos: [
+      { src: "/images/thanksgiving-sandiego-1.jpeg", alt: "Thanksgiving in San Diego" },
+      { src: "/images/thanksgiving-sandiego-2.jpeg", alt: "Dungeons & Dragons in San Diego" },
+    ],
+    accentColor: "#E67E22",
+  },
+  {
     id: "hawaii-2",
     era: "Junior Year",
     title: "Back to the Islands",
     date: "March 2023",
     location: "Hawaii",
     lat: 21.3069, lng: -157.8583, altitude: 1.6,
-    travelFrom: STANFORD,
+    travelFrom: SAN_DIEGO,
     description:
       "They returned to Hawaii — this time with Ashton's parents, sister Savannah, and her boyfriend Tyler. Paradise with the whole crew.",
     photos: [
@@ -359,7 +387,7 @@ export const chapters: StoryChapter[] = [
   {
     id: "long-distance",
     era: "Long Distance",
-    title: "The Hard Part",
+    title: "Coast to Coast",
     date: "Summer–Fall 2024",
     location: "Palo Alto, CA  ↔  New York City, NY",
     lat: 39.5, lng: -96.0, altitude: 2.2, // centered over US
@@ -381,9 +409,10 @@ export const chapters: StoryChapter[] = [
     date: "February 2025",
     location: "New York City, NY",
     lat: 40.7128, lng: -74.006, altitude: 1.3,
+    travelFrom: PALO_ALTO,
     description:
       "February 2025: Ashton packed up Palo Alto and moved to New York City. Same city. Finally.",
-    photos: [{ src: "", alt: "Moving to NYC", placeholder: true }],
+    photos: [{ src: "/images/he-moved.jpeg", alt: "Moving to NYC" }],
     accentColor: "#1A5276",
   },
   {
@@ -398,22 +427,23 @@ export const chapters: StoryChapter[] = [
     photos: [
       { src: "/images/nyc-life-1.jpg", alt: "NYC life together" },
       { src: "/images/nyc-life-2.jpg", alt: "NYC adventures" },
+      { src: "/images/italy.jpg", alt: "Italy & Istanbul" },
       { src: "/images/nyc-life-3.jpg", alt: "Trips in 2025" },
-      { src: "/images/nyc-life-4.jpg", alt: "More 2025 adventures" },
     ],
     accentColor: "#2471A3",
+    journeyAnimation: true,
   },
   {
-    id: "montreal",
+    id: "paris",
     era: "Next Chapter",
-    title: "Next Stop: Montréal",
+    title: "Next Stop: Paris",
     date: "Coming Soon",
-    location: "Montréal, QC, Canada",
-    lat: 45.5017, lng: -73.5673, altitude: 1.2,
+    location: "Paris, France",
+    lat: 48.8566, lng: 2.3522, altitude: 1.2,
     travelFrom: NYC,
     description:
-      "The adventure continues. Ashton & Iris are heading to Montréal — a new city, a new chapter, and many more to come.",
-    photos: [{ src: "", alt: "Montréal awaits", placeholder: true }],
+      "The adventure continues. Ashton & Iris are heading to Paris — a new city, a new chapter, and many more to come.",
+    photos: [{ src: "", alt: "Paris awaits", placeholder: true }],
     accentColor: "#E74C3C",
   },
 ];

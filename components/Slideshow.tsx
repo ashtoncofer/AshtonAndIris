@@ -18,6 +18,18 @@ const Globe = lazy(() => import("./Globe"));
 
 const FLY_MS = 1300;
 
+// NYC journey waypoints: NYC → Stanford → San Diego → Italy/Istanbul → Hawaii → NYC
+const NYC_JOURNEY = [
+  { lat: 40.7128, lng: -74.006,   altitude: 1.3 },
+  { lat: 37.4275, lng: -122.1697, altitude: 1.1 },
+  { lat: 32.7157, lng: -117.1611, altitude: 1.2 },
+  { lat: 41.45,   lng: 20.7,      altitude: 2.2 },
+  { lat: 20.7984, lng: -156.3319, altitude: 1.6 },
+  { lat: 40.7128, lng: -74.006,   altitude: 1.3 },
+] as const;
+
+const NYC_LIFE_IDX = chapters.findIndex(c => c.id === "nyc-life");
+
 // ─── Parse "July 26, 2021" → { month: "July", year: "2021" } ────────────────
 function parseDate(dateStr: string): { month: string; year: string } {
   const full = dateStr.match(/^([A-Za-zÀ-ÿ]+(?:[–\-\s]+[A-Za-z]+)?)\s+(?:\d+,\s+)?(\d{4})$/);
@@ -76,7 +88,16 @@ function PhotoCard({
       }}
       className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10"
     >
-      {photo.placeholder ? (
+      {photo.video ? (
+        <video
+          src={photo.src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ width: "100%", height: "auto", display: "block", maxHeight: pos.w * 1.5 }}
+        />
+      ) : photo.placeholder ? (
         <div
           className="flex items-center justify-center bg-white/5"
           style={{ width: pos.w, height: Math.round(pos.w * 0.75) }}
@@ -134,8 +155,8 @@ function MontrealCard({ accentColor }: { accentColor: string }) {
       </motion.div>
       <div className="relative z-10 flex flex-col gap-1">
         <p className="text-white/40 text-[10px] tracking-[0.3em] uppercase">Next Adventure</p>
-        <h2 className="text-4xl font-bold text-white tracking-tight">Montréal</h2>
-        <p className="text-white/50 text-sm">Québec, Canada</p>
+        <h2 className="text-4xl font-bold text-white tracking-tight">Paris</h2>
+        <p className="text-white/50 text-sm">France</p>
       </div>
       <motion.div
         className="relative z-10 px-5 py-1.5 rounded-full text-xs font-semibold"
@@ -154,7 +175,10 @@ export default function Slideshow() {
   const [displayIdx, setDisplayIdx] = useState(0);
   const [pendingIdx, setPendingIdx] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const [journeyPhase, setJourneyPhase] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
 
   const navigateTo = useCallback(
     (idx: number) => {
@@ -182,6 +206,24 @@ export default function Slideshow() {
     return () => window.removeEventListener("keydown", h);
   }, [next, prev]);
 
+  // Reset any programmatic document scroll (e.g. from Timeline's scrollIntoView) on every slide change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [displayIdx]);
+
+  // NYC journey auto-animation — play through once and stop at the last waypoint
+  useEffect(() => {
+    if (displayIdx !== NYC_LIFE_IDX || transitioning) {
+      setJourneyPhase(0);
+      return;
+    }
+    if (journeyPhase >= NYC_JOURNEY.length - 1) return;
+    const timeout = setTimeout(() => {
+      setJourneyPhase(p => p + 1);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [displayIdx, transitioning, journeyPhase]);
+
   const chapter = chapters[displayIdx];
   const pending = chapters[pendingIdx];
   const isFirst = displayIdx === 0;
@@ -189,18 +231,24 @@ export default function Slideshow() {
 
   const { month, year } = parseDate(chapter.date);
 
-  const markers = chapters.map((c, i) => ({
-    lat: c.lat, lng: c.lng,
-    label: c.location.split(",")[0],
-    color: c.accentColor,
-    isActive:  i === pendingIdx,
-    isVisited: i < pendingIdx,
-    chapterIdx: i,
-  }));
+  // Skip the midpoint dot for split-location chapters — person pins already show where each person is
+  const markers = chapters.flatMap((c, i) => {
+    if (c.ashton && c.iris) return [];
+    return [{ lat: c.lat, lng: c.lng, label: c.location.split(",")[0], color: c.accentColor, isActive: i === pendingIdx, isVisited: i < pendingIdx, chapterIdx: i }];
+  });
 
-  const arc = pending.travelFrom
-    ? { startLat: pending.travelFrom.lat, startLng: pending.travelFrom.lng, endLat: pending.lat, endLng: pending.lng, color: pending.accentColor }
-    : null;
+  const arcs = (() => {
+    if (!pending.travelFrom) return [];
+    const { lat: fromLat, lng: fromLng } = pending.travelFrom;
+    if (pending.ashton && pending.iris) {
+      // People are heading to different places — show one arc per person
+      return [
+        { startLat: fromLat, startLng: fromLng, endLat: pending.ashton.lat, endLng: pending.ashton.lng, color: "#60a5fa" },
+        { startLat: fromLat, startLng: fromLng, endLat: pending.iris.lat,   endLng: pending.iris.lng,   color: "#f9a8d4" },
+      ];
+    }
+    return [{ startLat: fromLat, startLng: fromLng, endLat: pending.lat, endLng: pending.lng, color: pending.accentColor }];
+  })();
 
   const ashtonPos = chapter.ashton ?? { lat: chapter.lat, lng: chapter.lng };
   const irisPos   = chapter.iris   ?? { lat: chapter.lat, lng: chapter.lng };
@@ -210,49 +258,79 @@ export default function Slideshow() {
     { lat: together ? irisPos.lat - 0.18 : irisPos.lat,     lng: together ? irisPos.lng + 0.22 : irisPos.lng,     label: "I" as const, color: "#f9a8d4", name: "Iris"   },
   ];
 
+  // Override globe target and person pins for the journey animation slide
+  const isJourneyActive = displayIdx === NYC_LIFE_IDX && !transitioning;
+  const wp = NYC_JOURNEY[journeyPhase];
+  const globeTargetLat = isJourneyActive ? wp.lat : pending.lat;
+  const globeTargetLng = isJourneyActive ? wp.lng : pending.lng;
+  const globeAltitude  = isJourneyActive ? wp.altitude : pending.altitude;
+  const journeyArcs = (isJourneyActive && journeyPhase > 0) ? [{
+    startLat: NYC_JOURNEY[journeyPhase - 1].lat,
+    startLng: NYC_JOURNEY[journeyPhase - 1].lng,
+    endLat: NYC_JOURNEY[journeyPhase].lat,
+    endLng: NYC_JOURNEY[journeyPhase].lng,
+    color: "#2471A3",
+  }] : [];
+  const globeArcs = isJourneyActive ? journeyArcs : arcs;
+  const journeyPins = [
+    { lat: wp.lat + 0.18, lng: wp.lng - 0.22, label: "A" as const, color: "#60a5fa", name: "Ashton" },
+    { lat: wp.lat - 0.18, lng: wp.lng + 0.22, label: "I" as const, color: "#f9a8d4", name: "Iris"   },
+  ];
+  const globePersonPins = isJourneyActive ? journeyPins : personPins;
+
   const real = chapter.photos.filter((p) => !p.placeholder && p.src);
   const displayPhotos = real.length > 0 ? real.slice(0, 4) : chapter.photos.slice(0, 1);
   const layout = getLayout(displayPhotos.length);
 
   return (
-    <motion.div
+    <div
       className="relative w-full h-screen overflow-hidden bg-[#020210] text-white"
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.08}
-      onDragEnd={(_, info) => {
-        if (info.offset.x < -60) next();
-        if (info.offset.x >  60) prev();
+      onPointerDown={(e) => {
+        swipeStartX.current = e.clientX;
+        swipeStartY.current = e.clientY;
+      }}
+      onPointerUp={(e) => {
+        if (swipeStartX.current === null) return;
+        const dx = e.clientX - swipeStartX.current;
+        const dy = e.clientY - (swipeStartY.current ?? e.clientY);
+        swipeStartX.current = null;
+        swipeStartY.current = null;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+          if (dx < 0) next();
+          else prev();
+        }
       }}
     >
-      {/* Globe */}
-      <div className="absolute inset-0">
+      {/* Globe — z-index:0 creates a stacking context so the WebGL canvas is contained within it */}
+      <div className="absolute inset-0" style={{ zIndex: 0 }}>
         <Suspense fallback={<div className="w-full h-full bg-[#020210]" />}>
           <Globe
-            targetLat={pending.lat}
-            targetLng={pending.lng}
-            altitude={pending.altitude}
+            targetLat={globeTargetLat}
+            targetLng={globeTargetLng}
+            altitude={globeAltitude}
             markers={markers}
-            arc={arc}
+            arcs={globeArcs}
             activeColor={chapter.accentColor}
-            personPins={personPins}
+            personPins={globePersonPins}
             onMarkerClick={navigateTo}
           />
         </Suspense>
       </div>
 
-      {/* Gradient overlay — no panel edge */}
+      {/* Gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
+          zIndex: 1,
           background:
-            "linear-gradient(to right, rgba(2,2,16,0.97) 0%, rgba(2,2,16,0.90) 28%, rgba(2,2,16,0.52) 50%, rgba(2,2,16,0.12) 66%, transparent 80%)",
+            "linear-gradient(to right, rgba(2,2,16,0.98) 0%, rgba(2,2,16,0.97) 32%, rgba(2,2,16,0.85) 50%, rgba(2,2,16,0.12) 66%, transparent 80%)",
         }}
       />
       <div
         className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
-        style={{ background: "linear-gradient(to top, rgba(2,2,16,0.98) 0%, transparent 100%)" }}
+        style={{ zIndex: 1, background: "linear-gradient(to top, rgba(2,2,16,0.98) 0%, transparent 100%)" }}
       />
+
 
       {/* ── Left text content ─── */}
       <div className="absolute inset-0 z-10 flex flex-col justify-center px-10 md:px-14 pointer-events-none">
@@ -302,9 +380,13 @@ export default function Slideshow() {
               <span className="text-sm md:text-base tracking-[0.2em] uppercase text-white/40 font-medium">
                 {month}
               </span>
-              {year && (
+              {year ? (
                 <span className="text-7xl md:text-8xl lg:text-9xl font-bold text-white/90 tracking-tight leading-none">
                   {year}
+                </span>
+              ) : (
+                <span className="text-7xl md:text-8xl lg:text-9xl font-bold text-white/10 tracking-tight leading-none select-none">
+                  ????
                 </span>
               )}
             </div>
@@ -345,6 +427,6 @@ export default function Slideshow() {
 
       {/* ── Timeline ─── */}
       <Timeline currentIdx={displayIdx} onNavigate={navigateTo} />
-    </motion.div>
+    </div>
   );
 }
