@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 interface GlobeMarker {
   lat: number;
@@ -52,6 +52,7 @@ export default function Globe({
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeRef = useRef<any>(null);
+  const [globeReady, setGlobeReady] = useState(false);
 
   // Init
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function Globe({
 
       globe(el);
       globeRef.current = globe;
+      if (mounted) setGlobeReady(true);
 
       // No auto-rotate — the chapter fly animation IS the motion
       const controls = globe.controls();
@@ -131,7 +133,7 @@ export default function Globe({
     } else {
       g.ringsData([]);
     }
-  }, [markers, activeColor, onMarkerClick]);
+  }, [markers, activeColor, onMarkerClick, globeReady]);
 
   // Inject CSS keyframes for pin animation once
   useEffect(() => {
@@ -209,7 +211,7 @@ export default function Globe({
         wrapper.appendChild(nameTag);
         return wrapper;
       });
-  }, [personPins]);
+  }, [personPins, globeReady]);
 
   // Arcs
   useEffect(() => {
@@ -226,7 +228,7 @@ export default function Globe({
       .arcDashLength(0.45)
       .arcDashGap(0.22)
       .arcDashAnimateTime(1600);
-  }, [arcs]);
+  }, [arcs, globeReady]);
 
   // Resize
   useEffect(() => {

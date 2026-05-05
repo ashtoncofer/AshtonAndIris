@@ -67,12 +67,10 @@ function PhotoCard({
   photo,
   pos,
   delay,
-  hideOnMobile,
 }: {
   photo: StoryPhoto;
   pos: { top: number; right: number; rot: number; w: number };
   delay: number;
-  hideOnMobile?: boolean;
 }) {
   return (
     <motion.div
@@ -89,7 +87,7 @@ function PhotoCard({
         rotate: pos.rot,
         zIndex: 20,
       }}
-      className={`rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10${hideOnMobile ? " max-sm:hidden" : ""}`}
+      className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.65)] ring-1 ring-white/10"
     >
       {photo.video ? (
         <video
@@ -422,7 +420,7 @@ export default function Slideshow() {
               <MontrealCard accentColor={chapter.accentColor} />
             ) : (
               displayPhotos.map((photo, i) => (
-                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} hideOnMobile={i > 0} />
+                <PhotoCard key={i} photo={photo} pos={layout[i]} delay={i * 0.08} />
               ))
             )}
           </motion.div>
